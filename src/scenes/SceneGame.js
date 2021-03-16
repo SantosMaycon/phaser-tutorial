@@ -9,6 +9,7 @@ class SceneGame extends Phaser.Scene {
     super();
     this.platforms;
     this.player;
+    this.cursors;
   }
 
   preload() {
@@ -58,6 +59,23 @@ class SceneGame extends Phaser.Scene {
     });
 
     this.physics.add.collider(this.player, this.platforms);
+    this.cursors = this.input.keyboard.createCursorKeys();
+  }
+
+  update() {
+    if (this.cursors.left.isDown) {
+      this.player.setVelocityX(-160);
+      this.player.anims.play("left", true);
+    } else if (this.cursors.right.isDown) {
+      this.player.setVelocityX(160);
+      this.player.anims.play("right", true);
+    } else {
+      this.player.setVelocityX(0);
+      this.player.anims.play("turn");
+    }
+    if (this.cursors.up.isDown && this.player.body.touching.down) {
+      this.player.setVelocityY(-300);
+    }
   }
 }
 
