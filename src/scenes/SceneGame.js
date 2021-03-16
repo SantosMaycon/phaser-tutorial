@@ -11,6 +11,9 @@ class SceneGame extends Phaser.Scene {
     this.player;
     this.cursors;
     this.stars;
+    this.score = 0;
+    this.scoreText;
+    this.bombs;
   }
 
   preload() {
@@ -81,6 +84,21 @@ class SceneGame extends Phaser.Scene {
       null,
       this,
     );
+
+    this.scoreText = this.add.text(16, 16, "score: 0", {
+      fontSize: "32px",
+      fill: "#000",
+    });
+
+    this.bombs = this.physics.add.group();
+    this.physics.add.collider(this.bombs, this.platforms);
+    this.physics.add.collider(
+      this.player,
+      this.bombs,
+      this.hitBomb,
+      null,
+      this,
+    );
   }
 
   update() {
@@ -101,6 +119,29 @@ class SceneGame extends Phaser.Scene {
 
   collectStar(player, star) {
     star.disableBody(true, true);
+    this.score += 10;
+    this.scoreText.setText(`Score: ${this.score}`);
+
+    if (this.stars.countActive(true) === 0) {
+      this.stars.children.iterate((child) => {
+        child.enableBody(true, child.x, 0, true, true);
+      });
+      let x =
+        player.x < 400
+          ? Phaser.Math.Between(400, 800)
+          : Phaser.Math.Between(0, 400);
+
+      let bomb = this.bombs.create(x, 16, "bomb");
+      bomb.setBounce(1);
+      bomb.setCollideWorldBounds(true);
+      bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
+    }
+  }
+
+  hitBomb(player, bombs) {
+    this.physics.pause();
+    player.setTint(0xff0000);
+    player.anims.play("turn");
   }
 }
 
