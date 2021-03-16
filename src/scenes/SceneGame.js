@@ -10,6 +10,7 @@ class SceneGame extends Phaser.Scene {
     this.platforms;
     this.player;
     this.cursors;
+    this.stars;
   }
 
   preload() {
@@ -58,8 +59,28 @@ class SceneGame extends Phaser.Scene {
       repeat: -1,
     });
 
-    this.physics.add.collider(this.player, this.platforms);
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.stars = this.physics.add.group({
+      key: "star",
+      repeat: 11,
+      setXY: { x: 12, y: 0, stepX: 70 },
+    });
+
+    this.stars.children.iterate((child) => {
+      child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+    });
+
+    this.physics.add.collider(this.player, this.platforms);
+    this.physics.add.collider(this.stars, this.platforms);
+
+    this.physics.add.overlap(
+      this.player,
+      this.stars,
+      this.collectStar,
+      null,
+      this,
+    );
   }
 
   update() {
@@ -74,8 +95,12 @@ class SceneGame extends Phaser.Scene {
       this.player.anims.play("turn");
     }
     if (this.cursors.up.isDown && this.player.body.touching.down) {
-      this.player.setVelocityY(-300);
+      this.player.setVelocityY(-330);
     }
+  }
+
+  collectStar(player, star) {
+    star.disableBody(true, true);
   }
 }
 
